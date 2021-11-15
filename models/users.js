@@ -13,6 +13,7 @@ const UsersSchema = new Schema(
     },
     email: { type: String, required: true, maxLength: 255, unique: true },
     password: { type: String, required: true },
+    avatar: { type: String, default: "http://cdn.onlinewebfonts.com/svg/img_258083.png" },
   },
   { timestamps: true, versionKey: false }
 );

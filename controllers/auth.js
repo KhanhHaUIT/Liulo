@@ -37,4 +37,45 @@ module.exports = {
       res.status(500).json({ error: error.message });
     }
   },
+  googleLogin: async (req, res) => {
+    const client = new OAuth2Client(`${process.env.GOOGLE_CLIENT_ID}`);
+    const { tokenId } = req.body;
+    
+    try {
+      const response = await client.verifyIdToken({
+        idToken: tokenId,
+        audience: `${process.env.GOOGLE_CLIENT_ID}`,
+      });
+      const { sub, email_verified,  email, picture } = response.payload;
+    
+      if (email_verified) {
+        let user = await User.findOne({ email });
+        
+        if (!user) {
+          user = await User.create({
+            username: `google_${sub}`,
+            email,
+            password,
+            avatar: picture,
+          });
+        }
+        const token = jwt.sign({ sub: user._id }, process.env.APP_SECRET);
+        return res.json({
+          success: true,
+          message: 'Login successful',
+          token,
+        });
+      }
+      return res
+        .status(403)
+        .json({ success: true, message: 'Email is not verified' });
+    } catch (error) {
+      // console.log(error);
+      return res.status(500).json({
+        success: false,
+        message: 'Internal Server Error',
+        error: error,
+      });
+    }
+  }
 };

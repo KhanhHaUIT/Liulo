@@ -1,5 +1,6 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const initialState = {
   user: null,
@@ -13,6 +14,21 @@ export const loginAsync = createAsyncThunk(
     try {
       const response = await axios.post(
         `${process.env.REACT_APP_HOST}/login`,
+        values
+      );
+      return response;
+    } catch (err) {
+      return rejectWithValue(err.response.data);
+    }
+  }
+);
+
+export const registerAsync = createAsyncThunk(
+  "auth/register",
+  async (values, { rejectWithValue }) => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_HOST}/register`,
         values
       );
       return response;
@@ -37,11 +53,25 @@ export const loginSlice = createSlice({
       .addCase(loginAsync.fulfilled, (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
+        localStorage.setItem("token", action.payload.data.token);
       })
       .addCase(loginAsync.rejected, (state, action) => {
         state.loading = false;
         state.isAuthenticated = false;
-      });
+      })
+      .addCase(registerAsync.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(registerAsync.fulfilled, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = true;
+        localStorage.setItem("token", action.payload.data.token);
+      })
+      .addCase(registerAsync.rejected, (state, action) => {
+        state.loading = false;
+        state.isAuthenticated = false;
+      })
+      ;
   },
 });
 
