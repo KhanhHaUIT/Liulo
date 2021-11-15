@@ -1,9 +1,9 @@
 # Liulo
-Run react-app:
+## Run react-app:
 - cd client
 - yarn install
 - yarn start
-Run server:
+## Run server:
 - yarn install
 - yarn debug (development) or yarn start
 
